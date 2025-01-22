@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interval Trainer Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .keyboard {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .key {
+            width: 40px;
+            height: 150px;
+            margin: 1px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: flex-end;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .key.black {
+            width: 30px;
+            height: 100px;
+            background-color: black;
+            color: white;
+            border-radius: 5px;
+            position: relative;
+            margin-left: -15px;
+            margin-right: -15px;
+            z-index: 1;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+        }
+        .key.correct {
+            background-color: #4CAF50;
+        }
+        .key.incorrect {
+            background-color: #F44336;
+        }
+        .key.highlight {
+            background-color: #FFD700;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .hint-button, .reference-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .hint-button:hover, .reference-button:hover {
+            background-color: #0056b3;
+        }
+        .reference-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            display: none;
+        }
+        .reference-table th, .reference-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .reference-table th {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interval Trainer Game</h1>
+    <p>Click the correct key for the interval!</p>
+    <div id="question">Loading...</div>
+
+    <div class="keyboard" id="keyboard"></div>
+
+    <div class="message" id="message"></div>
+
+    <button class="hint-button" id="hint-button">Show Hint</button>
+    <button class="reference-button" id="reference-button">Show Reference Table</button>
+
+    <table class="reference-table" id="reference-table">
+        <thead>
+            <tr>
+                <th>Interval</th>
+                <th>Semitones</th>
+                <th>Example (from C)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Unísono</td>
+                <td>0</td>
+                <td>C</td>
+            </tr>
+            <tr>
+                <td>Segunda menor</td>
+                <td>1</td>
+                <td>C# / Db</td>
+            </tr>
+            <tr>
+                <td>Segunda mayor</td>
+                <td>2</td>
+                <td>D</td>
+            </tr>
+            <tr>
+                <td>Tercera menor</td>
+                <td>3</td>
+                <td>D# / Eb</td>
+            </tr>
+            <tr>
+                <td>Tercera mayor</td>
+                <td>4</td>
+                <td>E</td>
+            </tr>
+            <tr>
+                <td>Cuarta justa</td>
+                <td>5</td>
+                <td>F</td>
+            </tr>
+            <tr>
+                <td>Quinta justa</td>
+                <td>7</td>
+                <td>G</td>
+            </tr>
+            <tr>
+                <td>Sexta mayor</td>
+                <td>9</td>
+                <td>A</td>
+            </tr>
+            <tr>
+                <td>Séptima mayor</td>
+                <td>11</td>
+                <td>B</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const intervals = {
+            "Unísono": 0,
+            "Segunda menor": 1,
+            "Segunda mayor": 2,
+            "Tercera menor": 3,
+            "Tercera mayor": 4,
+            "Cuarta justa": 5,
+            "Quinta justa": 7,
+            "Sexta mayor": 9,
+            "Séptima mayor": 11,
+        };
+
+        let baseNote = Math.floor(Math.random() * notes.length);
+        let intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
+        let correctNote = (baseNote + intervals[intervalName]) % notes.length;
+
+        const questionDiv = document.getElementById("question");
+        const keyboardDiv = document.getElementById("keyboard");
+        const messageDiv = document.getElementById("message");
+        const hintButton = document.getElementById("hint-button");
+        const referenceButton = document.getElementById("reference-button");
+        const referenceTable = document.getElementById("reference-table");
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(frequency, duration = 1, type = "sine") {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function playOscillator(noteIndex) {
+            const frequencies = [
+                261.63, // C
+                277.18, // C#
+                293.66, // D
+                311.13, // D#
+                329.63, // E
+                349.23, // F
+                369.99, // F#
+                392.00, // G
+                415.30, // G#
+                440.00, // A
+                466.16, // A#
+                493.88  // B
+            ];
+
+            const frequency = frequencies[noteIndex];
+            playTone(frequency, 1);
+        }
+
+        function setupKeyboard() {
+            notes.forEach((note, index) => {
+                const key = document.createElement("div");
+                key.classList.add("key");
+                if (note.includes("#")) {
+                    key.classList.add("black");
+                }
+                key.dataset.noteIndex = index;
+                key.innerText = note;
+                key.addEventListener("click", () => handleKeyClick(index));
+                keyboardDiv.appendChild(key);
+            });
+        }
+
+        function resetKeyStyles() {
+            const keys = document.querySelectorAll(".key");
+            keys.forEach(key => key.classList.remove("correct", "incorrect", "highlight"));
+        }
+
+        function highlightBaseNote() {
+            document.querySelector(`.key[data-note-index='${baseNote}']`).classList.add("highlight");
+        }
+
+        function handleKeyClick(noteIndex) {
+            resetKeyStyles();
+
+            if (noteIndex === correctNote) {
+                playTone(880, 0.5, "triangle"); // High-pitched success tone
+                messageDiv.innerText = "Correct! Well done.";
+                document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("correct");
+            } else {
+                playTone(220, 0.5, "sawtooth"); // Low-pitched error tone
+                messageDiv.innerText = `Incorrect. The correct note was ${notes[correctNote]}.`;
+                document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("incorrect");
+            }
+
+            setTimeout(newQuestion, 2000);
+        }
+
+        function newQuestion() {
+            resetKeyStyles();
+            baseNote = Math.floor(Math.random() * notes.length);
+            intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
+            correctNote = (baseNote + intervals[intervalName]) % notes.length;
+
+            playOscillator(baseNote);
+            highlightBaseNote();
+
+            questionDiv.innerText = `From ${notes[baseNote]}, find the ${intervalName}.`;
+            messageDiv.innerText = "";
+        }
+
+        hintButton.addEventListener("click", () => {
+            const semitones = intervals[intervalName];
+            messageDiv.innerText = `Hint: The interval is ${semitones} semitone(s).`;
+        });
+
+        referenceButton.addEventListener("click", () => {
+            referenceTable.style.display = referenceTable.style.display === "none" ? "table" : "none";
+        });
+
+        setupKeyboard();
+        newQuestion();
+    </script>
+</body>
+</html>
