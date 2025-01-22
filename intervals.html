@@ -4,282 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interval Trainer Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        .keyboard {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .key {
-            width: 40px;
-            height: 150px;
-            margin: 1px;
-            background-color: white;
-            border: 1px solid black;
-            border-radius: 8px;
-            display: inline-flex;
-            justify-content: center;
-            align-items: flex-end;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .key.black {
-            width: 30px;
-            height: 100px;
-            background-color: black;
-            color: white;
-            border-radius: 5px;
-            position: relative;
-            margin-left: -15px;
-            margin-right: -15px;
-            z-index: 1;
-            text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
-        }
-        .key.correct {
-            background-color: #4CAF50;
-        }
-        .key.incorrect {
-            background-color: #F44336;
-        }
-        .key.highlight {
-            background-color: #FFD700;
-        }
-        .message {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        .hint-button, .reference-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .hint-button:hover, .reference-button:hover {
-            background-color: #0056b3;
-        }
-        .reference-table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 80%;
-            display: none;
-        }
-        .reference-table th, .reference-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        .reference-table th {
-            background-color: #007BFF;
-            color: white;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Interval Trainer Game</h1>
-    <p>Click the correct key for the interval!</p>
-    <div id="question">Loading...</div>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="title-group">
+                    <h1>Interval Trainer</h1>
+                    <p class="subtitle">Listen to the note and click the correct interval!</p>
+                </div>
+                <div class="score">Score: <span id="score">0</span></div>
+            </div>
+        </header>
 
-    <div class="keyboard" id="keyboard"></div>
+        <main>
+            <section class="game-section">
+                <div id="question" class="question">Loading...</div>
+                <div class="keyboard" id="keyboard"></div>
+                <div class="message" id="message"></div>
+                <div class="help-text">
+                    Need help? <button class="text-button" id="hint-button">Show hint</button> or
+                    <button class="text-button" id="reference-button">view reference</button>
+                </div>
+                <div class="theory-text">
+                    Want to learn more? <button class="text-button" id="theory-button">Read about intervals</button>
+                </div>
+            </section>
 
-    <div class="message" id="message"></div>
+            <section class="theory-section" id="theory-section">
+                <div class="theory-content">
+                    <h2>Understanding Musical Intervals</h2>
 
-    <button class="hint-button" id="hint-button">Show Hint</button>
-    <button class="reference-button" id="reference-button">Show Reference Table</button>
+                    <p class="theory-intro">
+                        An interval is the distance between two musical notes. Understanding intervals is fundamental
+                        to music theory as they form the building blocks of melodies, harmonies, and chords.
+                    </p>
 
-    <table class="reference-table" id="reference-table">
-        <thead>
-            <tr>
-                <th>Interval</th>
-                <th>Semitones</th>
-                <th>Example (from C)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Unísono</td>
-                <td>0</td>
-                <td>C</td>
-            </tr>
-            <tr>
-                <td>Segunda menor</td>
-                <td>1</td>
-                <td>C# / Db</td>
-            </tr>
-            <tr>
-                <td>Segunda mayor</td>
-                <td>2</td>
-                <td>D</td>
-            </tr>
-            <tr>
-                <td>Tercera menor</td>
-                <td>3</td>
-                <td>D# / Eb</td>
-            </tr>
-            <tr>
-                <td>Tercera mayor</td>
-                <td>4</td>
-                <td>E</td>
-            </tr>
-            <tr>
-                <td>Cuarta justa</td>
-                <td>5</td>
-                <td>F</td>
-            </tr>
-            <tr>
-                <td>Quinta justa</td>
-                <td>7</td>
-                <td>G</td>
-            </tr>
-            <tr>
-                <td>Sexta mayor</td>
-                <td>9</td>
-                <td>A</td>
-            </tr>
-            <tr>
-                <td>Séptima mayor</td>
-                <td>11</td>
-                <td>B</td>
-            </tr>
-        </tbody>
-    </table>
+                    <div class="theory-grid">
+                        <div class="theory-card">
+                            <h3>Basic Concepts</h3>
+                            <p>
+                                Intervals are measured in two ways:
+                                <ul>
+                                    <li>Semitones (half steps): The smallest distance between two notes</li>
+                                    <li>Tones (whole steps): Equal to two semitones</li>
+                                </ul>
+                            </p>
+                        </div>
 
-    <script>
-        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const intervals = {
-            "Unísono": 0,
-            "Segunda menor": 1,
-            "Segunda mayor": 2,
-            "Tercera menor": 3,
-            "Tercera mayor": 4,
-            "Cuarta justa": 5,
-            "Quinta justa": 7,
-            "Sexta mayor": 9,
-            "Séptima mayor": 11,
-        };
+                        <div class="theory-card">
+                            <h3>Types of Intervals</h3>
+                            <p>
+                                Intervals are classified as:
+                                <ul>
+                                    <li>Perfect: Unison, Fourth, Fifth, Octave</li>
+                                    <li>Major/Minor: Seconds, Thirds, Sixths, Sevenths</li>
+                                    <li>Augmented/Diminished: Modified versions of perfect or major intervals</li>
+                                </ul>
+                            </p>
+                        </div>
 
-        let baseNote = Math.floor(Math.random() * notes.length);
-        let intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
-        let correctNote = (baseNote + intervals[intervalName]) % notes.length;
+                        <div class="theory-card">
+                            <h3>Quality and Character</h3>
+                            <p>
+                                Different intervals create distinct emotional qualities:
+                                <ul>
+                                    <li>Perfect intervals sound stable and consonant</li>
+                                    <li>Major intervals tend to sound bright and happy</li>
+                                    <li>Minor intervals often sound darker or melancholic</li>
+                                    <li>Augmented/Diminished intervals create tension</li>
+                                </ul>
+                            </p>
+                        </div>
 
-        const questionDiv = document.getElementById("question");
-        const keyboardDiv = document.getElementById("keyboard");
-        const messageDiv = document.getElementById("message");
-        const hintButton = document.getElementById("hint-button");
-        const referenceButton = document.getElementById("reference-button");
-        const referenceTable = document.getElementById("reference-table");
+                        <div class="theory-card">
+                            <h3>Common Uses</h3>
+                            <p>
+                                Intervals are essential for:
+                                <ul>
+                                    <li>Building chords and harmonies</li>
+                                    <li>Creating melodies</li>
+                                    <li>Understanding scales</li>
+                                    <li>Ear training and sight-singing</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
 
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    <div class="theory-note">
+                        <strong>Pro Tip:</strong> Practice recognizing intervals by associating them with familiar song beginnings.
+                        For example, "Somewhere Over the Rainbow" starts with an octave jump!
+                    </div>
+                </div>
+            </section>
 
-        function playTone(frequency, duration = 1, type = "sine") {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            <section class="reference-section">
+                <table class="reference-table" id="reference-table">
+                    <thead>
+                        <tr>
+                            <th>Interval</th>
+                            <th>Distance</th>
+                            <th>Example (from C)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unison</td>
+                            <td>0 tones (0 semitones)</td>
+                            <td>C</td>
+                        </tr>
+                        <tr>
+                            <td>Minor Second</td>
+                            <td>½ tone (1 semitone)</td>
+                            <td>C# / Db</td>
+                        </tr>
+                        <tr>
+                            <td>Major Second</td>
+                            <td>1 tone (2 semitones)</td>
+                            <td>D</td>
+                        </tr>
+                        <tr>
+                            <td>Minor Third</td>
+                            <td>1½ tones (3 semitones)</td>
+                            <td>D# / Eb</td>
+                        </tr>
+                        <tr>
+                            <td>Major Third</td>
+                            <td>2 tones (4 semitones)</td>
+                            <td>E</td>
+                        </tr>
+                        <tr>
+                            <td>Perfect Fourth</td>
+                            <td>2½ tones (5 semitones)</td>
+                            <td>F</td>
+                        </tr>
+                        <tr>
+                            <td>Augmented Fourth</td>
+                            <td>3 tones (6 semitones)</td>
+                            <td>F# / Gb</td>
+                        </tr>
+                        <tr>
+                            <td>Diminished Fifth</td>
+                            <td>3 tones (6 semitones)</td>
+                            <td>F# / Gb</td>
+                        </tr>
+                        <tr>
+                            <td>Perfect Fifth</td>
+                            <td>3½ tones (7 semitones)</td>
+                            <td>G</td>
+                        </tr>
+                        <tr>
+                            <td>Augmented Fifth</td>
+                            <td>4 tones (8 semitones)</td>
+                            <td>G# / Ab</td>
+                        </tr>
+                        <tr>
+                            <td>Minor Sixth</td>
+                            <td>4 tones (8 semitones)</td>
+                            <td>G# / Ab</td>
+                        </tr>
+                        <tr>
+                            <td>Major Sixth</td>
+                            <td>4½ tones (9 semitones)</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td>Minor Seventh</td>
+                            <td>5 tones (10 semitones)</td>
+                            <td>A# / Bb</td>
+                        </tr>
+                        <tr>
+                            <td>Major Seventh</td>
+                            <td>5½ tones (11 semitones)</td>
+                            <td>B</td>
+                        </tr>
+                        <tr>
+                            <td>Octave</td>
+                            <td>6 tones (12 semitones)</td>
+                            <td>C</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
 
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.start();
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
-            oscillator.stop(audioContext.currentTime + duration);
-        }
-
-        function playOscillator(noteIndex) {
-            const frequencies = [
-                261.63, // C
-                277.18, // C#
-                293.66, // D
-                311.13, // D#
-                329.63, // E
-                349.23, // F
-                369.99, // F#
-                392.00, // G
-                415.30, // G#
-                440.00, // A
-                466.16, // A#
-                493.88  // B
-            ];
-
-            const frequency = frequencies[noteIndex];
-            playTone(frequency, 1);
-        }
-
-        function setupKeyboard() {
-            notes.forEach((note, index) => {
-                const key = document.createElement("div");
-                key.classList.add("key");
-                if (note.includes("#")) {
-                    key.classList.add("black");
-                }
-                key.dataset.noteIndex = index;
-                key.innerText = note;
-                key.addEventListener("click", () => handleKeyClick(index));
-                keyboardDiv.appendChild(key);
-            });
-        }
-
-        function resetKeyStyles() {
-            const keys = document.querySelectorAll(".key");
-            keys.forEach(key => key.classList.remove("correct", "incorrect", "highlight"));
-        }
-
-        function highlightBaseNote() {
-            document.querySelector(`.key[data-note-index='${baseNote}']`).classList.add("highlight");
-        }
-
-        function handleKeyClick(noteIndex) {
-            resetKeyStyles();
-
-            if (noteIndex === correctNote) {
-                playTone(880, 0.5, "triangle"); // High-pitched success tone
-                messageDiv.innerText = "Correct! Well done.";
-                document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("correct");
-            } else {
-                playTone(220, 0.5, "sawtooth"); // Low-pitched error tone
-                messageDiv.innerText = `Incorrect. The correct note was ${notes[correctNote]}.`;
-                document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("incorrect");
-            }
-
-            setTimeout(newQuestion, 2000);
-        }
-
-        function newQuestion() {
-            resetKeyStyles();
-            baseNote = Math.floor(Math.random() * notes.length);
-            intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
-            correctNote = (baseNote + intervals[intervalName]) % notes.length;
-
-            playOscillator(baseNote);
-            highlightBaseNote();
-
-            questionDiv.innerText = `From ${notes[baseNote]}, find the ${intervalName}.`;
-            messageDiv.innerText = "";
-        }
-
-        hintButton.addEventListener("click", () => {
-            const semitones = intervals[intervalName];
-            messageDiv.innerText = `Hint: The interval is ${semitones} semitone(s).`;
-        });
-
-        referenceButton.addEventListener("click", () => {
-            referenceTable.style.display = referenceTable.style.display === "none" ? "table" : "none";
-        });
-
-        setupKeyboard();
-        newQuestion();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
