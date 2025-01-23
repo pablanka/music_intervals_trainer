@@ -92,6 +92,15 @@ main {
     margin-bottom: 1.5rem;
     color: var(--text-primary);
     font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.question .text-button {
+    margin-top: 0.5rem;
+    font-size: 1rem;
 }
 
 .keyboard {
@@ -143,19 +152,19 @@ main {
     background-color: #4b5563;
 }
 
-.key.correct {
+.key.correct, .key.black.correct {
     background-color: var(--success-color);
     border-color: var(--success-color);
     color: white;
 }
 
-.key.incorrect {
+.key.incorrect, .key.black.incorrect {
     background-color: var(--error-color);
     border-color: var(--error-color);
     color: white;
 }
 
-.key.highlight {
+.key.highlight, .key.black.highlight {
     background-color: var(--highlight-color);
     border-color: var(--highlight-color);
     color: var(--text-primary);

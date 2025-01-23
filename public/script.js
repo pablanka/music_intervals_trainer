@@ -33,7 +33,16 @@ const referenceTable = document.getElementById("reference-table");
 const theoryButton = document.getElementById("theory-button");
 const theorySection = document.getElementById("theory-section");
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioContext = null;
+
+function initAudioContext() {
+    if (audioContext === null) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+}
 
 function updateTitle() {
     document.title = `Interval Trainer Game - Score: ${score}`;
@@ -41,6 +50,10 @@ function updateTitle() {
 }
 
 function playTone(frequency, duration = 1, type = "sine") {
+    if (!audioContext) {
+        initAudioContext();
+    }
+
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -83,7 +96,10 @@ function setupKeyboard() {
         }
         key.dataset.noteIndex = index;
         key.innerText = note;
-        key.addEventListener("click", () => handleKeyClick(index));
+        key.addEventListener("click", () => {
+            initAudioContext();
+            handleKeyClick(index);
+        });
         keyboardDiv.appendChild(key);
     });
 }
@@ -131,7 +147,9 @@ function newQuestion() {
     intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
     correctNote = (baseNote + intervals[intervalName]) % notes.length;
 
-    playOscillator(baseNote);
+    if (audioContext) {
+        playOscillator(baseNote);
+    }
     highlightBaseNote();
 
     questionDiv.innerText = `From ${notes[baseNote]}, find the ${intervalName}.`;
@@ -170,5 +188,16 @@ theoryButton.addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", () => {
     setupKeyboard();
     updateTitle();
+
+    const playButton = document.createElement("button");
+    playButton.className = "text-button";
+    playButton.innerText = "Play note again";
+    playButton.addEventListener("click", () => {
+        initAudioContext();
+        playOscillator(baseNote);
+    });
+    questionDiv.appendChild(document.createElement("br"));
+    questionDiv.appendChild(playButton);
+
     newQuestion();
 });
