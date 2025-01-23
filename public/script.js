@@ -33,75 +33,107 @@ const referenceTable = document.getElementById("reference-table");
 const theoryButton = document.getElementById("theory-button");
 const theorySection = document.getElementById("theory-section");
 
-let audioContext = null;
+// Audio handling
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioBuffers = {};
+let isLoading = true;
 
-function initAudioContext() {
-    if (audioContext === null) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
+// Map notes to filenames
+const noteToFilename = {
+    "C": "C4",
+    "C#": "Db4",
+    "D": "D4",
+    "D#": "Eb4",
+    "E": "E4",
+    "F": "F4",
+    "F#": "Gb4",
+    "G": "G4",
+    "G#": "Ab4",
+    "A": "A4",
+    "A#": "Bb4",
+    "B": "B4"
+};
+
+const errorSound = new Audio('sounds/error.mp3');
+
+// Function to resume audio context
+async function resumeAudioContext() {
     if (audioContext.state === 'suspended') {
-        audioContext.resume();
+        try {
+            await audioContext.resume();
+            console.log('AudioContext resumed successfully');
+        } catch (error) {
+            console.error('Failed to resume AudioContext:', error);
+        }
+    }
+}
+
+// Load audio files
+async function loadAudioFiles() {
+    try {
+        const loadPromises = notes.map(async (note) => {
+            try {
+                const filename = noteToFilename[note];
+                const response = await fetch(`sounds/${filename}.mp3`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                audioBuffers[note] = audioBuffer;
+            } catch (error) {
+                console.error(`Error loading sound for note ${note}:`, error);
+            }
+        });
+
+        await Promise.all(loadPromises);
+        isLoading = false;
+        console.log('All audio files loaded successfully');
+    } catch (error) {
+        console.error('Error in loadAudioFiles:', error);
+        messageDiv.innerText = "Error loading sounds. Please refresh the page.";
+    }
+}
+
+function playSound(buffer) {
+    if (!buffer) {
+        console.error('No buffer provided to playSound');
+        return;
+    }
+
+    try {
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+    } catch (error) {
+        console.error('Error playing sound:', error);
+    }
+}
+
+async function playNote(noteIndex) {
+    if (isLoading) {
+        console.log('Still loading sounds...');
+        return;
+    }
+
+    try {
+        await resumeAudioContext();
+        const note = notes[noteIndex];
+        const buffer = audioBuffers[note];
+        if (!buffer) {
+            console.error(`No buffer found for note ${note}`);
+            return;
+        }
+        playSound(buffer);
+    } catch (error) {
+        console.error('Error in playNote:', error);
     }
 }
 
 function updateTitle() {
     document.title = `Interval Trainer Game - Score: ${score}`;
     document.getElementById("score").textContent = score;
-}
-
-function playTone(frequency, duration = 1, type = "sine") {
-    if (!audioContext) {
-        initAudioContext();
-    }
-
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.start();
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
-    oscillator.stop(audioContext.currentTime + duration);
-}
-
-function playOscillator(noteIndex) {
-    const frequencies = [
-        261.63, // C
-        277.18, // C#
-        293.66, // D
-        311.13, // D#
-        329.63, // E
-        349.23, // F
-        369.99, // F#
-        392.00, // G
-        415.30, // G#
-        440.00, // A
-        466.16, // A#
-        493.88  // B
-    ];
-
-    const frequency = frequencies[noteIndex];
-    playTone(frequency, 1);
-}
-
-function setupKeyboard() {
-    notes.forEach((note, index) => {
-        const key = document.createElement("div");
-        key.classList.add("key");
-        if (note.includes("#")) {
-            key.classList.add("black");
-        }
-        key.dataset.noteIndex = index;
-        key.innerText = note;
-        key.addEventListener("click", () => {
-            initAudioContext();
-            handleKeyClick(index);
-        });
-        keyboardDiv.appendChild(key);
-    });
 }
 
 function resetKeyStyles() {
@@ -113,11 +145,10 @@ function highlightBaseNote() {
     document.querySelector(`.key[data-note-index='${baseNote}']`).classList.add("highlight");
 }
 
-function handleKeyClick(noteIndex) {
+async function handleKeyClick(noteIndex) {
     resetKeyStyles();
 
     if (noteIndex === correctNote) {
-        playOscillator(noteIndex);
         if (!usedHelpThisRound) {
             score += 10;
             messageDiv.innerText = "Correct! +10 points";
@@ -125,8 +156,8 @@ function handleKeyClick(noteIndex) {
             messageDiv.innerText = "Correct! (no points for using help)";
         }
         document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("correct");
+        playNote(noteIndex);
     } else {
-        playTone(220, 0.5, "sawtooth");
         if (!usedHelpThisRound) {
             score -= 5;
             messageDiv.innerText = `Incorrect. -5 points. The correct note was ${notes[correctNote]}.`;
@@ -134,6 +165,7 @@ function handleKeyClick(noteIndex) {
             messageDiv.innerText = `Incorrect. The correct note was ${notes[correctNote]}.`;
         }
         document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("incorrect");
+        playNote(noteIndex);
     }
 
     updateTitle();
@@ -147,16 +179,45 @@ function newQuestion() {
     intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
     correctNote = (baseNote + intervals[intervalName]) % notes.length;
 
-    if (audioContext) {
-        playOscillator(baseNote);
-    }
-    highlightBaseNote();
-
     questionDiv.innerText = `From ${notes[baseNote]}, find the ${intervalName}.`;
     messageDiv.innerText = "";
     referenceTable.style.display = "none";
+
+    playNote(baseNote);
+    highlightBaseNote();
 }
 
+// Initialize audio on first user interaction
+function initAudioOnInteraction() {
+    const initAudio = async () => {
+        await resumeAudioContext();
+        document.removeEventListener('click', initAudio);
+        document.removeEventListener('touchstart', initAudio);
+    };
+
+    document.addEventListener('click', initAudio);
+    document.addEventListener('touchstart', initAudio);
+}
+
+// Update keyboard setup to handle audio context
+function setupKeyboard() {
+    notes.forEach((note, index) => {
+        const key = document.createElement("div");
+        key.classList.add("key");
+        if (note.includes("#")) {
+            key.classList.add("black");
+        }
+        key.dataset.noteIndex = index;
+        key.innerText = note;
+        key.addEventListener("click", async () => {
+            await resumeAudioContext();
+            handleKeyClick(index);
+        });
+        keyboardDiv.appendChild(key);
+    });
+}
+
+// Event Listeners
 hintButton.addEventListener("click", () => {
     if (!usedHelpThisRound) {
         usedHelpThisRound = true;
@@ -182,22 +243,34 @@ referenceButton.addEventListener("click", () => {
 theoryButton.addEventListener("click", () => {
     const isVisible = theorySection.style.display === "block";
     theorySection.style.display = isVisible ? "none" : "block";
-    referenceTable.style.display = "none"; // Close reference table if open
+    referenceTable.style.display = "none";
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    setupKeyboard();
-    updateTitle();
+// Update DOMContentLoaded event handler
+document.addEventListener("DOMContentLoaded", async () => {
+    messageDiv.innerText = "Loading sounds...";
+    initAudioOnInteraction();
 
-    const playButton = document.createElement("button");
-    playButton.className = "text-button";
-    playButton.innerText = "Play note again";
-    playButton.addEventListener("click", () => {
-        initAudioContext();
-        playOscillator(baseNote);
-    });
-    questionDiv.appendChild(document.createElement("br"));
-    questionDiv.appendChild(playButton);
+    try {
+        await loadAudioFiles();
+        messageDiv.innerText = "";
 
-    newQuestion();
+        setupKeyboard();
+        updateTitle();
+
+        const playButton = document.createElement("button");
+        playButton.className = "text-button";
+        playButton.innerText = "Play note again";
+        playButton.addEventListener("click", async () => {
+            await resumeAudioContext();
+            playNote(baseNote);
+        });
+        questionDiv.appendChild(document.createElement("br"));
+        questionDiv.appendChild(playButton);
+
+        newQuestion();
+    } catch (error) {
+        console.error('Error during initialization:', error);
+        messageDiv.innerText = "Error initializing the app. Please refresh the page.";
+    }
 });
