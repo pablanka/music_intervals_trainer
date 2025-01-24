@@ -316,8 +316,18 @@ referenceButton.addEventListener("click", () => {
         usedHelpThisRound = true;
         messageDiv.innerText = "Help activated - No points this round";
     }
-    const isVisible = referenceTable.style.display === "table";
-    referenceTable.style.display = isVisible ? "none" : "table";
+    const noteTable = document.getElementById("reference-table");
+    const songTable = document.getElementById("song-reference-table");
+
+    if (currentMode === 'note') {
+        songTable.style.display = "none";
+        const isVisible = noteTable.style.display === "table";
+        noteTable.style.display = isVisible ? "none" : "table";
+    } else {
+        noteTable.style.display = "none";
+        const isVisible = songTable.style.display === "table";
+        songTable.style.display = isVisible ? "none" : "table";
+    }
 });
 
 theoryButton.addEventListener("click", () => {

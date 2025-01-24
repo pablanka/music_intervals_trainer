@@ -374,6 +374,33 @@ main {
     background-color: var(--background-secondary);
 }
 
+.song-reference-table {
+    margin-top: 1rem;
+}
+
+.youtube-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #ff0000;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.youtube-link:hover {
+    background-color: #cc0000;
+    transform: translateY(-1px);
+}
+
+.youtube-link:active {
+    transform: translateY(0);
+}
+
 .theory-text {
     margin-top: 0.5rem;
     font-size: 0.875rem;
