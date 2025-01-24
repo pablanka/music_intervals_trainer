@@ -20,12 +20,17 @@
                 </div>
                 <div class="score">Score: <span id="score">0</span></div>
             </div>
+            <div class="mode-selector">
+                <button id="note-mode" class="mode-button active">Find Note</button>
+                <button id="interval-mode" class="mode-button">Guess Interval</button>
+            </div>
         </header>
 
         <main>
             <section class="game-section">
                 <div id="question" class="question">Loading...</div>
                 <div class="keyboard" id="keyboard"></div>
+                <div class="interval-grid" id="interval-grid"></div>
                 <div class="message" id="message"></div>
                 <div class="help-text">
                     Need help? <button class="text-button" id="hint-button">Show hint</button> or
@@ -35,6 +40,8 @@
                     Want to learn more? <button class="text-button" id="theory-button">Read about intervals</button>
                 </div>
             </section>
+
+            <div id="listen-container" class="listen-container"></div>
 
             <section class="theory-section" id="theory-section">
                 <div class="theory-content">

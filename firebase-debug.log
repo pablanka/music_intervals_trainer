@@ -1,0 +1,54 @@
+[debug] [2025-01-24T21:59:00.341Z] ----------------------------------------------------------------------
+[debug] [2025-01-24T21:59:00.342Z] Command:       /Users/pablanka/.nvm/versions/node/v20.14.0/bin/node /Users/pablanka/.nvm/versions/node/v20.14.0/bin/firebase serve
+[debug] [2025-01-24T21:59:00.343Z] CLI Version:   13.29.2
+[debug] [2025-01-24T21:59:00.343Z] Platform:      darwin
+[debug] [2025-01-24T21:59:00.343Z] Node Version:  v20.14.0
+[debug] [2025-01-24T21:59:00.343Z] Time:          Fri Jan 24 2025 18:59:00 GMT-0300 (Argentina Standard Time)
+[debug] [2025-01-24T21:59:00.343Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-01-24T21:59:00.435Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-01-24T21:59:00.436Z] > authorizing via signed-in user (pbk.pablo.a@gmail.com)
+[debug] [2025-01-24T21:59:00.436Z] [iam] checking project interval-trainer-722d0 for permissions ["firebase.projects.get"]
+[debug] [2025-01-24T21:59:00.436Z] Checked if tokens are valid: false, expires at: 1737756711258
+[debug] [2025-01-24T21:59:00.436Z] Checked if tokens are valid: false, expires at: 1737756711258
+[debug] [2025-01-24T21:59:00.437Z] > refreshing access token with scopes: []
+[debug] [2025-01-24T21:59:00.437Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-01-24T21:59:00.437Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-01-24T21:59:00.589Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-01-24T21:59:00.590Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-01-24T21:59:00.600Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0:testIamPermissions [none]
+[debug] [2025-01-24T21:59:00.600Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0:testIamPermissions x-goog-quota-user=projects/interval-trainer-722d0
+[debug] [2025-01-24T21:59:00.600Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-01-24T21:59:01.497Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0:testIamPermissions 200
+[debug] [2025-01-24T21:59:01.497Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-01-24T21:59:01.498Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:01.499Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:01.499Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0 [none]
+[debug] [2025-01-24T21:59:01.721Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0 200
+[debug] [2025-01-24T21:59:01.721Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/interval-trainer-722d0 {"projectNumber":"288110576730","projectId":"interval-trainer-722d0","lifecycleState":"ACTIVE","name":"Interval Trainer","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-01-22T23:39:50.048330Z"}
+[info] 
+[info] === Serving from '/Users/pablanka/projects/invervals'...
+[info] 
+[debug] [2025-01-24T21:59:01.725Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:01.725Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:01.725Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/interval-trainer-722d0/sites 
+[debug] [2025-01-24T21:59:03.386Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/interval-trainer-722d0/sites 200
+[debug] [2025-01-24T21:59:03.387Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/interval-trainer-722d0/sites {"sites":[{"name":"projects/interval-trainer-722d0/sites/interval-trainer-722d0","defaultUrl":"https://interval-trainer-722d0.web.app","type":"DEFAULT_SITE"}]}
+[debug] [2025-01-24T21:59:03.387Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:03.387Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:03.387Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/interval-trainer-722d0/webApps/-/config [none]
+[debug] [2025-01-24T21:59:04.116Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/interval-trainer-722d0/webApps/-/config 200
+[debug] [2025-01-24T21:59:04.116Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/interval-trainer-722d0/webApps/-/config {"projectId":"interval-trainer-722d0","storageBucket":"interval-trainer-722d0.firebasestorage.app","apiKey":"AIzaSyC9CDf-CpTwwZj7Y-KtujffSqwNCGoNmyA","authDomain":"interval-trainer-722d0.firebaseapp.com","messagingSenderId":"288110576730"}
+[debug] [2025-01-24T21:59:04.123Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:04.123Z] Checked if tokens are valid: true, expires at: 1737759539590
+[debug] [2025-01-24T21:59:04.123Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/interval-trainer-722d0 [none]
+[debug] [2025-01-24T21:59:04.539Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/interval-trainer-722d0 200
+[debug] [2025-01-24T21:59:04.540Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/interval-trainer-722d0 {"projectId":"interval-trainer-722d0","projectNumber":"288110576730","displayName":"Interval Trainer","name":"projects/interval-trainer-722d0","resources":{"hostingSite":"interval-trainer-722d0"},"state":"ACTIVE","etag":"1_737ae86f-6abc-4781-aaf9-a48b07bae400"}
+[info] i  hosting[interval-trainer-722d0]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
+[info] ✔  hosting[interval-trainer-722d0]: Local server: http://localhost:5002 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://localhost:5002\u001b[22m\u001b[24m"}}
+[info] i  hosting: ::1 - - [24/Jan/2025:21:59:07 +0000] "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [24/Jan/2025:21:59:07 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [24/Jan/2025:21:59:09 +0000] "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [24/Jan/2025:21:59:09 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [24/Jan/2025:21:59:09 +0000] "GET /script.js HTTP/1.1" 200 - "http://localhost:5002/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [24/Jan/2025:21:59:09 +0000] \"GET /script.js HTTP/1.1\" 200 - \"http://localhost:5002/\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [24/Jan/2025:21:59:09 +0000] "GET /styles.css HTTP/1.1" 200 - "http://localhost:5002/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [24/Jan/2025:21:59:09 +0000] \"GET /styles.css HTTP/1.1\" 200 - \"http://localhost:5002/\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [24/Jan/2025:21:59:09 +0000] "GET /favicon.ico HTTP/1.1" 404 - "http://localhost:5002/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [24/Jan/2025:21:59:09 +0000] \"GET /favicon.ico HTTP/1.1\" 404 - \"http://localhost:5002/\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [24/Jan/2025:21:59:14 +0000] "GET /favicon.ico HTTP/1.1" 404 - "http://localhost:5002/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [24/Jan/2025:21:59:14 +0000] \"GET /favicon.ico HTTP/1.1\" 404 - \"http://localhost:5002/\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36\""}}
