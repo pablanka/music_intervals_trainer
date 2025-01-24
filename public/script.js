@@ -19,6 +19,7 @@ const intervals = {
 
 let score = 0;
 let usedHelpThisRound = false;
+let isLoading = true;
 
 let baseNote = Math.floor(Math.random() * notes.length);
 let intervalName = Object.keys(intervals)[Math.floor(Math.random() * Object.keys(intervals).length)];
@@ -34,9 +35,8 @@ const theoryButton = document.getElementById("theory-button");
 const theorySection = document.getElementById("theory-section");
 
 // Audio handling
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const audioBuffers = {};
-let isLoading = true;
+const audioElements = {};
+let audioUnlocked = false;
 
 // Map notes to filenames
 const noteToFilename = {
@@ -54,78 +54,70 @@ const noteToFilename = {
     "B": "B4"
 };
 
-const errorSound = new Audio('sounds/error.mp3');
-
-// Function to resume audio context
-async function resumeAudioContext() {
-    if (audioContext.state === 'suspended') {
-        try {
-            await audioContext.resume();
-            console.log('AudioContext resumed successfully');
-        } catch (error) {
-            console.error('Failed to resume AudioContext:', error);
-        }
-    }
+function _createAudioElement(note) {
+    const filename = noteToFilename[note];
+    const audio = new Audio(`sounds/${filename}.mp3`);
+    audio.preload = 'auto';
+    return audio;
 }
 
-// Load audio files
-async function loadAudioFiles() {
-    try {
-        const loadPromises = notes.map(async (note) => {
-            try {
-                const filename = noteToFilename[note];
-                const response = await fetch(`sounds/${filename}.mp3`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const arrayBuffer = await response.arrayBuffer();
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                audioBuffers[note] = audioBuffer;
-            } catch (error) {
-                console.error(`Error loading sound for note ${note}:`, error);
-            }
-        });
-
-        await Promise.all(loadPromises);
-        isLoading = false;
-        console.log('All audio files loaded successfully');
-    } catch (error) {
-        console.error('Error in loadAudioFiles:', error);
-        messageDiv.innerText = "Error loading sounds. Please refresh the page.";
-    }
+function preloadAudioFiles() {
+    notes.forEach(note => {
+        audioElements[note] = _createAudioElement(note);
+    });
+    isLoading = false;
 }
 
-function playSound(buffer) {
-    if (!buffer) {
-        console.error('No buffer provided to playSound');
-        return;
-    }
+function _unlockAudioForIOS() {
+    if (audioUnlocked) return;
 
-    try {
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioContext.destination);
-        source.start(0);
-    } catch (error) {
-        console.error('Error playing sound:', error);
-    }
+    // Create and play a silent audio element
+    const silentAudio = new Audio();
+    silentAudio.play().then(() => {
+        audioUnlocked = true;
+    }).catch(error => {
+        console.warn('Audio unlock failed:', error);
+    });
+
+    // Unlock all audio elements
+    Object.values(audioElements).forEach(audio => {
+        audio.load();
+    });
+}
+
+function stopAllSounds() {
+    Object.values(audioElements).forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
 }
 
 async function playNote(noteIndex) {
-    if (isLoading) {
-        console.log('Still loading sounds...');
-        return;
-    }
+    if (isLoading) return;
 
     try {
-        await resumeAudioContext();
+        stopAllSounds();
         const note = notes[noteIndex];
-        const buffer = audioBuffers[note];
-        if (!buffer) {
-            console.error(`No buffer found for note ${note}`);
+        const audio = audioElements[note];
+
+        if (!audio) {
+            console.error('Audio element not found for note:', note);
             return;
         }
-        playSound(buffer);
+
+        // For iOS, we need to reload the audio element before playing
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+            audio.load();
+        }
+
+        audio.currentTime = 0;
+        await audio.play().catch(error => {
+            console.error('Error playing audio:', error);
+            // If playback fails, try recreating the audio element
+            audioElements[note] = _createAudioElement(note);
+            return audioElements[note].play();
+        });
     } catch (error) {
         console.error('Error in playNote:', error);
     }
@@ -156,7 +148,7 @@ async function handleKeyClick(noteIndex) {
             messageDiv.innerText = "Correct! (no points for using help)";
         }
         document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("correct");
-        playNote(noteIndex);
+        await playNote(noteIndex);
     } else {
         if (!usedHelpThisRound) {
             score -= 5;
@@ -165,7 +157,7 @@ async function handleKeyClick(noteIndex) {
             messageDiv.innerText = `Incorrect. The correct note was ${notes[correctNote]}.`;
         }
         document.querySelector(`.key[data-note-index='${noteIndex}']`).classList.add("incorrect");
-        playNote(noteIndex);
+        await playNote(noteIndex);
     }
 
     updateTitle();
@@ -187,19 +179,6 @@ function newQuestion() {
     highlightBaseNote();
 }
 
-// Initialize audio on first user interaction
-function initAudioOnInteraction() {
-    const initAudio = async () => {
-        await resumeAudioContext();
-        document.removeEventListener('click', initAudio);
-        document.removeEventListener('touchstart', initAudio);
-    };
-
-    document.addEventListener('click', initAudio);
-    document.addEventListener('touchstart', initAudio);
-}
-
-// Update keyboard setup to handle audio context
 function setupKeyboard() {
     notes.forEach((note, index) => {
         const key = document.createElement("div");
@@ -209,10 +188,7 @@ function setupKeyboard() {
         }
         key.dataset.noteIndex = index;
         key.innerText = note;
-        key.addEventListener("click", async () => {
-            await resumeAudioContext();
-            handleKeyClick(index);
-        });
+        key.addEventListener("click", () => handleKeyClick(index));
         keyboardDiv.appendChild(key);
     });
 }
@@ -246,31 +222,30 @@ theoryButton.addEventListener("click", () => {
     referenceTable.style.display = "none";
 });
 
-// Update DOMContentLoaded event handler
-document.addEventListener("DOMContentLoaded", async () => {
-    messageDiv.innerText = "Loading sounds...";
-    initAudioOnInteraction();
+document.addEventListener('DOMContentLoaded', () => {
+    messageDiv.innerText = "Tap anywhere to start";
 
-    try {
-        await loadAudioFiles();
+    // Initialize audio on first interaction
+    const startAudio = () => {
+        _unlockAudioForIOS();
+        preloadAudioFiles();
         messageDiv.innerText = "";
+        document.removeEventListener('click', startAudio);
+        document.removeEventListener('touchstart', startAudio);
+    };
 
-        setupKeyboard();
-        updateTitle();
+    document.addEventListener('click', startAudio);
+    document.addEventListener('touchstart', startAudio);
 
-        const playButton = document.createElement("button");
-        playButton.className = "text-button";
-        playButton.innerText = "Play note again";
-        playButton.addEventListener("click", async () => {
-            await resumeAudioContext();
-            playNote(baseNote);
-        });
-        questionDiv.appendChild(document.createElement("br"));
-        questionDiv.appendChild(playButton);
+    setupKeyboard();
+    updateTitle();
 
-        newQuestion();
-    } catch (error) {
-        console.error('Error during initialization:', error);
-        messageDiv.innerText = "Error initializing the app. Please refresh the page.";
-    }
+    const playButton = document.createElement("button");
+    playButton.className = "text-button";
+    playButton.innerText = "Play note again";
+    playButton.addEventListener("click", () => playNote(baseNote));
+    questionDiv.appendChild(document.createElement("br"));
+    questionDiv.appendChild(playButton);
+
+    newQuestion();
 });
